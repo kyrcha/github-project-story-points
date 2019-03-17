@@ -68,10 +68,31 @@ var updateUsersPoints = function () {
     if(arraysEqual(JSON.parse(card.getAttribute("data-card-title")), ["points", "report"])){
       card.innerHTML = ""
       for(var user in workersPoints){
-        card.innerHTML += "<span class='Counter Counter--gray-light mr-1 position-relative js-column-card-count'>" +
-          user + " - [" + workersPoints[user] + "] " + " - (" + workersSpentSprint[user] + "/" + workersPointsSprint[user] + ")</span><br>";
-        // card.innerHTML += "<span class='Counter Counter--gray-light mr-1 position-relative js-column-card-count'>" +
-          // "In sprint has burned " + workersSpentSprint[user] + " points out of  " + workersPointsSprint[user] + "<span>";
+
+        var prog = (workersSpentSprint[user] / workersPointsSprint[user] * 100);
+        var color = '';
+        if(prog <= 20)        color = "#fb7b7b";
+        else if(prog <= 40 )  color = "#ffa879";
+        else if(prog <= 60 )  color = "#ffc163";
+        else if(prog <= 80 )  color = "#feff5c";
+        else if(prog <= 100)  color = "#c0ff33";
+        else color = "#d4faf4";
+
+        if(!(user in workersPointsSprint)) color = "#ffffff"
+
+        var style = " style=\"background-color:" + color + "\" ";
+        var st = "<button width=100% " + style + ">";
+        st += "User: <b>" + user + "</b><br \>";
+        st += "Project points: <b>" + workersPoints[user] + "</b><br \>";
+        if(user in workersPointsSprint){
+          st += "Sprint points: <b>" + workersSpentSprint[user] + " / " + workersPointsSprint[user] + "</b><br \>";
+          st += (workersSpentSprint[user] / workersPointsSprint[user] * 100).toFixed(2) + "%" + "</button>";
+        }
+        else{
+          st += "Sprint points: <b>-</b><br \>";
+          st += "- %" + "</button>";
+        }
+        card.innerHTML += st;
       }
       break;
     }
