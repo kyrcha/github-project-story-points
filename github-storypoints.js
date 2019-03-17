@@ -1,7 +1,7 @@
 (function (d, w) {
 'use strict';
 
-var pointsRegEx = /^(\(([\d\.]+)\)\s*)?(.+?)(\s*\[([\d\.]+)\])?$/im; // new RegExp("^(\(([\d\.]+)\))?(.+)(\[([\d\.]+)\])?$", "i"); // Was: /^\(([\d\.]+)\)(.+)/i; 
+var pointsRegEx = /^(\(([\d\.]+)\)\s*)?(.+?)(\s*\[([\d\.]+)\])?$/im; // new RegExp("^(\(([\d\.]+)\))?(.+)(\[([\d\.]+)\])?$", "i"); // Was: /^\(([\d\.]+)\)(.+)/i;
 
 var debounce = function (func, wait, immediate) {
   var timeout;
@@ -35,6 +35,11 @@ var resetStoryPointsForColumn = (column) => {
   }
 };
 
+var workersPoints = {};
+var workersSpent = {};
+var workersPointsSprint = {};
+var workersSpentSprint = {};
+
 var titleWithPoints = (title, points, spent) => (
   `<span style="font-weight:bold">${title}</span><br \>
   <span class="github-project-story-points counter"
@@ -44,6 +49,35 @@ var titleWithPoints = (title, points, spent) => (
 var titleWithTotalPoints = (title, points, spent) => (
     `${title}<span class="github-project-story-points" style="font-size:xx-small"> item${pluralize(title)} (${spent} spent of ${points})</span>`
 );
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+var updateUsersPoints = function () {
+  let cards = d.getElementsByClassName('issue-card');
+  for(let card of cards){
+    // console.log(JSON.parse(card.getAttribute("data-card-title")));
+
+    if(arraysEqual(JSON.parse(card.getAttribute("data-card-title")), ["points", "report"])){
+      card.innerHTML = ""
+      for(var user in workersPoints){
+        card.innerHTML += "<span class='Counter Counter--gray-light mr-1 position-relative js-column-card-count'>" +
+          user + " - [" + workersPoints[user] + "] " + " - (" + workersSpentSprint[user] + "/" + workersPointsSprint[user] + ")</span><br>";
+        // card.innerHTML += "<span class='Counter Counter--gray-light mr-1 position-relative js-column-card-count'>" +
+          // "In sprint has burned " + workersSpentSprint[user] + " points out of  " + workersPointsSprint[user] + "<span>";
+      }
+      break;
+    }
+  }
+};
 
 var addStoryPointsForColumn = (column) => {
   const columnCards = Array
@@ -81,13 +115,35 @@ var addStoryPointsForColumn = (column) => {
       };
     });
   const columnCountElement = column.getElementsByClassName('js-column-card-count')[0];
+  const columnName = column.getElementsByClassName('js-project-column-name')[0].innerHTML;
 
   let columnStoryPoints = 0;
   let columnSpentPoints = 0;
+
   for (let card of columnCards) {
     columnStoryPoints += card.storyPoints;
     columnSpentPoints += card.spentPoints;
     if (card.storyPoints || card.spentPoints) {
+
+      if (card.element.dataset.cardAssignee != undefined){
+        let users = JSON.parse(card.element.dataset.cardAssignee);
+        for(let user of users){
+          if(user in workersPoints) workersPoints[user] += card.storyPoints / users.length;
+          else workersPoints[user] = card.storyPoints / users.length;
+          if(user in workersSpent) workersSpent[user] += card.spentPoints / users.length;
+          else workersSpent[user] = card.spentPoints / users.length;
+
+          if(columnName == "Sprint Planning" || columnName == "In progress" || columnName == "Delivered"){
+            if(user in workersPointsSprint) workersPointsSprint[user] += card.storyPoints / users.length;
+            else workersPointsSprint[user] = card.storyPoints / users.length;
+            if(user in workersSpentSprint) workersSpentSprint[user] += card.spentPoints / users.length;
+            else workersSpentSprint[user] = card.spentPoints / users.length;
+          }
+        }
+
+        updateUsersPoints();
+      }
+
       card.titleElement.dataset.gpspOriginalContent = card.title;
       card.titleElement.innerHTML = titleWithPoints(card.titleNoPoints, card.storyPoints, card.spentPoints);
     }
@@ -98,14 +154,21 @@ var addStoryPointsForColumn = (column) => {
   }
 };
 
+
 var resets = [];
 
 var start = debounce(() => {
   // Reset
+  workersPoints = {};
+  workersSpent = {};
+  workersPointsSprint = {};
+  workersSpentSprint = {};
+
   for (let reset of resets) {
     reset();
   }
   resets = [];
+
   // Projects
   const projects = d.getElementsByClassName('project-columns-container');
   if (projects.length > 0) {
