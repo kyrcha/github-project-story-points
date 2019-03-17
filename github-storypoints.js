@@ -65,7 +65,6 @@ var updateUsersPoints = function () {
   let cards = d.getElementsByClassName('issue-card');
   for(let card of cards){
     // console.log(JSON.parse(card.getAttribute("data-card-title")));
-
     if(arraysEqual(JSON.parse(card.getAttribute("data-card-title")), ["points", "report"])){
       card.innerHTML = ""
       for(var user in workersPoints){
@@ -125,7 +124,7 @@ var addStoryPointsForColumn = (column) => {
     columnSpentPoints += card.spentPoints;
     if (card.storyPoints || card.spentPoints) {
 
-      if (card.element.dataset.cardAssignee != undefined){
+      if (columnName != "Accepted" && card.element.dataset.cardAssignee != undefined){
         let users = JSON.parse(card.element.dataset.cardAssignee);
         for(let user of users){
           if(user in workersPoints) workersPoints[user] += card.storyPoints / users.length;
