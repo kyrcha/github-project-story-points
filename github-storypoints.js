@@ -80,16 +80,16 @@ var updateUsersPoints = function () {
 
         if(!(user in workersPointsSprint)) color = "#ffffff"
 
-        var style = " style=\"background-color:" + color + "\" ";
-        var st = "<button width=100% " + style + ">";
+        var style = " style=\"width: 100%; border-bottom-style: solid; background-color:" + color + "\" ";
+        var st = "<button " + style + ">";
         st += "User: <b>" + user + "</b><br \>";
-        st += "Project points: <b>" + workersPoints[user].toFixed(2) + "</b><br \>";
+        st += "Project: <b>" + workersPoints[user].toFixed(2) + "</b><br \>";
         if(user in workersPointsSprint){
-          st += "Sprint points: <b>" + workersSpentSprint[user].toFixed(2) + " / " + workersPointsSprint[user].toFixed(2) + "</b><br \>";
+          st += "Sprint: <b>" + workersSpentSprint[user].toFixed(2) + " / " + workersPointsSprint[user].toFixed(2) + "</b><br \>";
           st += (workersSpentSprint[user] / workersPointsSprint[user] * 100).toFixed(2) + "%" + "</button>";
         }
         else{
-          st += "Sprint points: <b>-</b><br \>";
+          st += "Sprint: <b>-</b><br \>";
           st += "- %" + "</button>";
         }
         card.innerHTML += st;
