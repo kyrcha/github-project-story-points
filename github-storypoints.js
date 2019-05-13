@@ -141,6 +141,7 @@ var addStoryPointsForColumn = (column) => {
   let columnSpentPoints = 0;
 
   for (let card of columnCards) {
+    // console.log(card)
     columnStoryPoints += card.storyPoints;
     columnSpentPoints += card.spentPoints;
     if (card.storyPoints || card.spentPoints) {
@@ -174,6 +175,12 @@ var addStoryPointsForColumn = (column) => {
   }
 };
 
+var clearUselessStuff = function(){
+  var paras = d.getElementsByClassName('text-gray');
+  for(let par of paras){
+    par.innerHTML = "";
+  }
+};
 
 var resets = [];
 
@@ -224,6 +231,7 @@ var start = debounce(() => {
       titleElement.innerHTML = titleWithPoints(storyTitle, storyPoints, spentPoints);
     }
   }
+  clearUselessStuff();
 }, 50);
 
 // Hacks to restart the plugin on pushState change
@@ -238,9 +246,11 @@ w.addEventListener('statechange', () => setTimeout(() => {
     timeline.addEventListener('DOMSubtreeModified', startOnce);
   }
   start();
+  clearUselessStuff();
 }, 500));
 
 // First start
 start();
+
 
 })(document, window);
