@@ -62,6 +62,7 @@ function arraysEqual(a, b) {
 }
 
 var updateUsersPoints = function () {
+  // return;
   let cards = d.getElementsByClassName('issue-card');
   for(let card of cards){
     // console.log(JSON.parse(card.getAttribute("data-card-title")));
@@ -97,6 +98,7 @@ var updateUsersPoints = function () {
       break;
     }
   }
+  clearUselessStuff();
 };
 
 var addStoryPointsForColumn = (column) => {
@@ -180,6 +182,21 @@ var clearUselessStuff = function(){
   for(let par of paras){
     par.innerHTML = "";
   }
+  paras = d.getElementsByClassName('text-gray-light');
+  for(let par of paras){
+    par.innerHTML = "";
+  }
+
+  var regexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/i;
+  var dates = d.getElementsByTagName('task-lists')
+  for(let date of dates){
+    if(regexp.exec(date.children[0].innerText) != null){
+      var raw = date.children[0].innerText;
+      date.setAttribute("style", "text-align: center; background-color: rgba(50, 115, 220, 0.3);")
+      date.children[0].setAttribute("style", "text-align: center; background-color: rgba(50, 115, 220, 0.3);");
+      date.children[0].innerHTML = '<hr><b>' + raw + '</b><hr>';
+    }
+  }
 };
 
 var resets = [];
@@ -231,7 +248,6 @@ var start = debounce(() => {
       titleElement.innerHTML = titleWithPoints(storyTitle, storyPoints, spentPoints);
     }
   }
-  clearUselessStuff();
 }, 50);
 
 // Hacks to restart the plugin on pushState change
@@ -246,7 +262,6 @@ w.addEventListener('statechange', () => setTimeout(() => {
     timeline.addEventListener('DOMSubtreeModified', startOnce);
   }
   start();
-  clearUselessStuff();
 }, 500));
 
 // First start
