@@ -182,10 +182,10 @@ var clearUselessStuff = function(){
   for(let par of paras){
     par.innerHTML = "";
   }
-  paras = d.getElementsByClassName('text-gray-light');
-  for(let par of paras){
-    par.innerHTML = "";
-  }
+  // paras = d.getElementsByClassName('text-gray-light');
+  // for(let par of paras){
+  //   par.innerHTML = "";
+  // }
 
   var regexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/i;
   var dates = d.getElementsByTagName('task-lists')
