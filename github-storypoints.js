@@ -62,6 +62,7 @@ function arraysEqual(a, b) {
 }
 
 var updateUsersPoints = function () {
+  // return;
   let cards = d.getElementsByClassName('issue-card');
   for(let card of cards){
     // console.log(JSON.parse(card.getAttribute("data-card-title")));
@@ -80,16 +81,16 @@ var updateUsersPoints = function () {
 
         if(!(user in workersPointsSprint)) color = "#ffffff"
 
-        var style = " style=\"background-color:" + color + "\" ";
-        var st = "<button width=100% " + style + ">";
+        var style = " style=\"width: 100%; border-bottom-style: solid; background-color:" + color + "\" ";
+        var st = "<button " + style + ">";
         st += "User: <b>" + user + "</b><br \>";
-        st += "Project points: <b>" + workersPoints[user] + "</b><br \>";
+        st += "Project: <b>" + workersPoints[user].toFixed(2) + "</b><br \>";
         if(user in workersPointsSprint){
-          st += "Sprint points: <b>" + workersSpentSprint[user] + " / " + workersPointsSprint[user] + "</b><br \>";
+          st += "Sprint: <b>" + workersSpentSprint[user].toFixed(2) + " / " + workersPointsSprint[user].toFixed(2) + "</b><br \>";
           st += (workersSpentSprint[user] / workersPointsSprint[user] * 100).toFixed(2) + "%" + "</button>";
         }
         else{
-          st += "Sprint points: <b>-</b><br \>";
+          st += "Sprint: <b>-</b><br \>";
           st += "- %" + "</button>";
         }
         card.innerHTML += st;
@@ -97,6 +98,7 @@ var updateUsersPoints = function () {
       break;
     }
   }
+  clearUselessStuff();
 };
 
 var addStoryPointsForColumn = (column) => {
@@ -141,6 +143,7 @@ var addStoryPointsForColumn = (column) => {
   let columnSpentPoints = 0;
 
   for (let card of columnCards) {
+    // console.log(card)
     columnStoryPoints += card.storyPoints;
     columnSpentPoints += card.spentPoints;
     if (card.storyPoints || card.spentPoints) {
@@ -174,6 +177,27 @@ var addStoryPointsForColumn = (column) => {
   }
 };
 
+var clearUselessStuff = function(){
+  var paras = d.getElementsByClassName('text-gray');
+  for(let par of paras){
+    par.innerHTML = "";
+  }
+  // paras = d.getElementsByClassName('text-gray-light');
+  // for(let par of paras){
+  //   par.innerHTML = "";
+  // }
+
+  var regexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/i;
+  var dates = d.getElementsByTagName('task-lists')
+  for(let date of dates){
+    if(regexp.exec(date.children[0].innerText) != null){
+      var raw = date.children[0].innerText;
+      date.setAttribute("style", "text-align: center; background-color: rgba(50, 115, 220, 0.3);")
+      date.children[0].setAttribute("style", "text-align: center; background-color: rgba(50, 115, 220, 0.3);");
+      date.children[0].innerHTML = '<hr><b>' + raw + '</b><hr>';
+    }
+  }
+};
 
 var resets = [];
 
@@ -242,5 +266,6 @@ w.addEventListener('statechange', () => setTimeout(() => {
 
 // First start
 start();
+
 
 })(document, window);
